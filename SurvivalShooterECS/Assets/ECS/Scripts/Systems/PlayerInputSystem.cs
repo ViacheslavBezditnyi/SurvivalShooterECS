@@ -1,4 +1,7 @@
-﻿using Unity.Entities;
+﻿using Google.Api;
+using GoogleCloudStreamingSpeechToText;
+using System;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
@@ -21,7 +24,7 @@ public partial class PlayerInputSystem : SystemBase
     {
         ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
-
+   
     protected override void OnStartRunning()
     {
         moveAction = new InputAction("move", binding: "<Gamepad>/rightStick");
@@ -31,6 +34,7 @@ public partial class PlayerInputSystem : SystemBase
             .With("Left", "<Keyboard>/a")
             .With("Right", "<Keyboard>/d");
 
+        SpeechRecognizer.onFinalResult.AddListener(ApplySpeechInput);
         moveAction.performed += context =>
         {
             moveInput = context.ReadValue<Vector2>();
@@ -64,11 +68,38 @@ public partial class PlayerInputSystem : SystemBase
         shootAction.Enable();
     }
 
+    private void ApplySpeechInput(string arg0)
+    {
+        Debug.Log("<color = blue> " + arg0 + " </color>");
+        switch (arg0)
+        {
+            case "up":
+                moveInput = new float2(0f, 1f);
+                Debug.LogError("UP");
+                break;
+            case "down":
+                moveInput = new float2(0f, -1f);
+                Debug.LogError("Down");
+                break;
+            case "right":
+                moveInput = new float2(1f, 0f);
+                Debug.Log("<color = blue> RIGHT </color>");
+                break;
+            case "left":
+                moveInput = new float2(-1f, 0f);
+                Debug.Log("<color = blue> LEFT </color>");
+                break;
+            default:
+                break;
+        }
+    }
+
     protected override void OnStopRunning()
     {
         shootAction.Disable();
         lookAction.Disable();
         moveAction.Disable();
+        SpeechRecognizer.onFinalResult.RemoveListener(ApplySpeechInput);
     }
 
     protected override void OnUpdate()
