@@ -41,3 +41,6 @@ sysinfo.txt
 
 # Mac OS system files
 *.DS_Store
+/SurvivalShooterECS/.vsconfig
+/SurvivalShooterECS/Assets/StreamingAssets
+SurvivalShooterECS/Assets/StreamingAssets
