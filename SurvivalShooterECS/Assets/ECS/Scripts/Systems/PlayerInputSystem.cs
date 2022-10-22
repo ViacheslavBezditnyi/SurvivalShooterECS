@@ -20,6 +20,11 @@ public partial class PlayerInputSystem : SystemBase
     private float2 lookInput;
     private float shootInput;
 
+    private float _leftLimit = 0.01f;
+    private float _rightLimit = 0.01f;
+    private float _shootLimit = 0.01f;
+
+
     protected override void OnCreate()
     {
         ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
@@ -35,6 +40,7 @@ public partial class PlayerInputSystem : SystemBase
             .With("Right", "<Keyboard>/d");
 
         SpeechRecognizer.onFinalResult.AddListener(ApplySpeechInput);
+
         moveAction.performed += context =>
         {
             moveInput = context.ReadValue<Vector2>();
@@ -68,28 +74,35 @@ public partial class PlayerInputSystem : SystemBase
         shootAction.Enable();
     }
 
-    private void ApplySpeechInput(string arg0)
+    private void ApplySpeechInput(string command)
     {
-        Debug.Log("<color = blue> " + arg0 + " </color>");
-        switch (arg0)
+        switch (command)
         {
             case "up":
-                moveInput = new float2(0f, 1f);
-                Debug.LogError("UP");
+                moveInput = new float2(0f, _rightLimit);
+                Debug.Log("<color = blue> UP");
                 break;
             case "down":
-                moveInput = new float2(0f, -1f);
-                Debug.LogError("Down");
+                moveInput = new float2(0f, -_rightLimit);
+                Debug.Log("<color = blue> DOWN");
                 break;
             case "right":
-                moveInput = new float2(1f, 0f);
-                Debug.Log("<color = blue> RIGHT </color>");
+                moveInput = new float2(_leftLimit, 0f);
+                Debug.Log("<color = blue> RIGHT");
                 break;
             case "left":
-                moveInput = new float2(-1f, 0f);
-                Debug.Log("<color = blue> LEFT </color>");
+                moveInput = new float2(-_leftLimit, 0f);
+                Debug.Log("<color = blue> LEFT");
+                break;
+            case "stop":
+                moveInput = new float2(0f, 0f);
+                Debug.Log("<color = blue> LEFT");
+                break;
+            case "shoot":
+                shootInput = _shootLimit;
                 break;
             default:
+                Debug.Log("<color = red> Unknown command");
                 break;
         }
     }
